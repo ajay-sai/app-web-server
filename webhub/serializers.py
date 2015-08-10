@@ -48,7 +48,7 @@ class PTPostSerializer(serializers.ModelSerializer):
 class ProjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = Project
-        fields = ('project_name','project_purpose','project_sector')
+        fields = ('project_name','project_purpose','project_sector','id')
         
 class GoalSerializer(serializers.ModelSerializer):
     class Meta:
@@ -63,7 +63,7 @@ class ObjectiveSerializer(serializers.ModelSerializer):
 class IndicatorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Indicator
-        fields = ('ind_obj','ind_type_1','ind_type_2','id')
+        fields = ('ind_obj','ind_desc','ind_type_1','ind_type_2','id')
         
 class OutputSerializer(serializers.ModelSerializer):
     class Meta:
@@ -94,4 +94,4 @@ class CohortSerializer(serializers.ModelSerializer):
 class VolunteerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Volunteer
-        fields = ('vol_name','vol_sector','vol_ptpost','vol_activity','vol_meas','vol_cohort','id')
+        fields = ('vol_name','vol_email','vol_sector','vol_ptpost','vol_activity','vol_meas','vol_cohort','id')

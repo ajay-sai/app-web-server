@@ -50,7 +50,7 @@ class Project(models.Model):
     #Purpose of the project
     project_purpose = models.CharField(max_length=3000)
     #The sector with which the project is associated
-    project_sector = models.OneToOneField(Sector, primary_key=True)
+    project_sector = models.ForeignKey(Sector, null=False, related_name='project_sector')
 
     def __unicode__(self):
         return self.project_name    
@@ -85,6 +85,7 @@ class Indicator(models.Model):
     #The objective with which the indicator is associated
     ind_obj = models.ForeignKey(Objective, null=False, related_name='ind_obj')
     #Indicator description
+    ind_desc = models.CharField(max_length=3000, null=False)
     #Indicator type (SI/PDI/SO/PD)
     #0 - SI
     #1 - PDI
