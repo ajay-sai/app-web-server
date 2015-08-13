@@ -666,12 +666,71 @@ def volunteer(request):
     all_vol = Volunteer.objects.all()
     return HttpResponse(jinja_environ.get_template('volunteer.html').render({"all_vol":all_vol, "pcuser":request.user.pcuser}))
 
+#Class Summary used to return objects to Summary of Peacetrack
+class SummaryItem:
+    post=""
+    region=""
+    sector=""
+    project=""
+    goal=""
+    objective=""
+    indicator=""
+    ind_type_1=""
+    ind_type_2=""
+    value=0
+    def __init__(self,post,region,sector,project,goal,objective,indicator,ind_type_1,ind_type_2,value):
+	self.post=post
+	self.region=region
+	self.sector=sector
+	self.project=project
+	self.goal=goal
+	self.objective=objective
+	self.indicator=indicator
+	self.ind_type_1=ind_type_1
+	self.ind_type_2=ind_type_2
+	self.value=value
+
+
 #Called when a user wants to see the summary of peacetrack volunteer db
 def summary(request):
-    all_post = PTPost.objects.all()
-    all_sector = Sector.objects.all()
-    all_project = Project.objects.all()
-    all_vol = Volunteer.objects.all()
-    return HttpResponse(jinja_environ.get_template('summary.html').render({"all_vol":all_vol,"all_post":all_post,"all_sector":all_sector, "all_project":all_project,"pcuser":request.user.pcuser}))
+#    all_indicator = Indicator.objects.all()
+    all_output = Output.objects.all()
+    all_outcome = Outcome.objects.all()
+    all_list = []
+    for output in all_output:
+	temp= SummaryItem(output.output_ptpost.post_name, output.output_ptpost.post_region.region_name, output.output_sector.sector_code, output.output_ind.ind_obj.obj_goal.goal_project.project_name, output.output_ind.ind_obj.obj_goal.goal_name, output.output_ind.ind_obj.obj_name, output.output_ind.ind_desc, output.output_ind.ind_type_1, "Output", output.output_value)
+#	temp['post']=output.output_ptpost.post_name
+#	temp['region']=output.output_ptpost.post_region.region_name
+#	temp['sector']=output.output_sector.sector_code
+#	temp['project_name']=output.output_ind.ind_obj.obj_goal.goal_project.project_name
+#	temp['goal_name']=output.output_ind.ind_obj.obj_goal.goal_name
+#	temp['obj_name']=output.output_ind.ind_obj.obj_name
+#	temp['ind_desc']=output.output_ind.ind_desc
+#	temp['ind_type_1']=output.output_ind.ind_type_1
+#	temp['ind_type_2']="Output"
+#	temp['value']=output.output_value
+	all_list.append(temp)
+    for outcome in all_outcome:
+	temp= SummaryItem(outcome.outcome_ptpost.post_name, outcome.outcome_ptpost.post_region.region_name, outcome.outcome_sector.sector_code, outcome.outcome_ind.ind_obj.obj_goal.goal_project.project_name, outcome.outcome_ind.ind_obj.obj_goal.goal_name, outcome.outcome_ind.ind_obj.obj_name, outcome.outcome_ind.ind_desc, outcome.outcome_ind.ind_type_1, "Outcome", outcome.outcome_value)
+#	temp={}
+#	temp['post']=outcome.outcome_ptpost.post_name
+#	temp['region']=outcome.outcome_ptpost.post_region.region_name
+#	temp['sector']=outcome.outcome_sector.sector_code
+#	temp['project_name']=outcome.outcome_ind.ind_obj.obj_goal.goal_project.project_name
+#	temp['goal_name']=outcome.outcome_ind.ind_obj.obj_goal.goal_name
+#	temp['obj_name']=outcome.outcome_ind.ind_obj.obj_name
+#	temp['ind_desc']=outcome.outcome_ind.ind_desc
+#	temp['ind_type_1']=outcome.outcome_ind.ind_type_1
+#	temp['ind_type_2']="Outcome"
+#	temp['value']=outcome.outcome_value
+	all_list.append(temp)
+    json=serializers.serialize(json,all_list)
+    return HttpResponse(json, content_type='application/json')
+#    return HttpResponse(jinja_environ.get_template('summary.html').render({"all_list":all_list,"pcuser":request.user.pcuser}))
 
-
+def sectorEquate(sectors,sector2):
+    temp = list(sectors)
+    for sector1 in temp:
+    	if sector1.sector_name==sector2.sector_name and sector1.sector_desc==sector2.sector_desc and sector1.sector_code==sector2.sector_code:
+	    return True
+    return False

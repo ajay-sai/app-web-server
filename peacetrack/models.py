@@ -1,5 +1,4 @@
-#Version : Phython/Django 2.7.6, PostgreSQL 9.3.4
-#Author : Vaibhavi Desai
+#Version : Phython/Django 2.7.6, PostgreSQL 9.3.4#Author : Vaibhavi Desai
 #Github username : desaivaibhavi
 #email : ranihaileydesai@gmail.com
 
@@ -63,7 +62,7 @@ class Goal(models.Model):
     #Statement of the goal
     goal_stmt = models.CharField(max_length=3000)
     #The project with which the goal is associated
-    goal_project = models.ForeignKey(Region, null=False, related_name='goal_project')
+    goal_project = models.ForeignKey(Project, null=False, related_name='goal_project')
     
     def __unicode__(self):
         return self.goal_name    
@@ -95,10 +94,10 @@ class Indicator(models.Model):
     #Indicator type (Outcome/Output)
     #true - Outcome
     #false - Output
-    ind_type_2 = models.BooleanField(default=True)
+    ind_type_2 = models.BooleanField(default=False)
     
     def __unicode__(self):
-        return self.ind_type_1
+        return self.ind_desc
 
     
     
