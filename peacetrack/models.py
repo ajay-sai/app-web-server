@@ -112,7 +112,8 @@ class Output(models.Model):
     output_value = models.IntegerField()
     
     def __unicode__(self):
-        return unicode(self.output_value)
+#        return unicode(self.output_value)
+        return unicode(self.output_ind)+"="+str(self.output_value)
 
     
 class Outcome(models.Model):
@@ -126,8 +127,8 @@ class Outcome(models.Model):
     outcome_value = models.IntegerField()
     
     def __unicode__(self):
-        return unicode(self.outcome_value)
-    
+#        return unicode(self.outcome_value)
+        return unicode(self.outcome_ind)+"="+str(self.outcome_value)
     
 class Cohort(models.Model):
     #name
@@ -149,6 +150,12 @@ class Cohort(models.Model):
     
     def __unicode__(self):
         return unicode(self.cohort_name)
+
+    def compare(self,other):
+	if self.cohort_name == other.cohort_name and self.cohort_desc == other.cohort_desc and self.cohort_no_of_members == other.cohort_no_of_members and self.cohort_age == other.cohort_age and self.cohort_males == other.cohort_males and self.cohort_females == other.cohort_females and self.cohort_pos == other.cohort_pos and self.cohort_notes == other.cohort_notes:
+		return True
+	else:
+		return False
     
 class Activity(models.Model):
     #title of the activity
@@ -171,7 +178,7 @@ class Measurement(models.Model):
     #short description of the Measurement
     meas_desc = models.CharField(max_length=3000)
     #relevant cohort name
-    meas_cohort = models.ForeignKey(Output, null=False, related_name='meas_cohort')
+    meas_cohort = models.ForeignKey(Cohort, null=False, related_name='meas_cohort')
     #date & time of the Measurement creation
     meas_created = models.DateTimeField(auto_now_add=True)
     #outcome with which the Measurement is associated

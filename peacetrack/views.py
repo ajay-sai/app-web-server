@@ -30,6 +30,7 @@ from paths import cpspath
 from webhub import xlrd
 
 import smtplib
+import json
 
 #SMTP port for sending emails
 SMTP_PORT = 465
@@ -664,7 +665,35 @@ def peacetrack(request):
 #Called when a user wants to see the details of a volunteer.
 def volunteer(request):
     all_vol = Volunteer.objects.all()
-    return HttpResponse(jinja_environ.get_template('volunteer.html').render({"all_vol":all_vol, "pcuser":request.user.pcuser}))
+    all_list=[]
+    for vol in all_vol:
+	temp={}
+	temp['vol_name']=vol.vol_name
+	temp['vol_post']=vol.vol_ptpost
+	temp['vol_sector']=vol.vol_sector
+	temp['cohort_activity_meas']=[]
+	for cohort in vol.vol_cohort.all():
+		temp1={}
+		temp1['activity']=[]
+		for act in vol.vol_activity.all():
+			if cohort.compare(act.activity_cohort):
+				temp1['activity'].append(act)
+		temp1['meas']=[]
+		for meas in vol.vol_meas.all():
+			if cohort.compare(meas.meas_cohort):
+				temp1['meas'].append(meas)
+		for i in range(max(len(temp1['activity']),len(temp1['meas']))):
+			if i > 0:
+				cohort=""
+			act = ""
+			if i < len(temp1['activity']):
+				act = temp1['activity'][i]
+			meas = ""
+			if i < len(temp1['meas']):
+				meas = temp1['meas'][i]
+			temp['cohort_activity_meas'].append([cohort,act,meas])
+	all_list.append(temp)
+    return HttpResponse(jinja_environ.get_template('volunteer.html').render({"all_vol":all_vol,"all_list":all_list, "pcuser":request.user.pcuser}))
 
 #Class Summary used to return objects to Summary of Peacetrack
 class SummaryItem:
@@ -689,44 +718,26 @@ class SummaryItem:
 	self.ind_type_1=ind_type_1
 	self.ind_type_2=ind_type_2
 	self.value=value
+    def as_json(self):
+	return dict(post=self.post,region=self.region,sector=self.sector,project=self.project,goal=self.goal,objective=self.objective,indicator=self.indicator,ind_type_1=self.ind_type_1,ind_type_2=self.ind_type_2,value=self.value)
 
 
 #Called when a user wants to see the summary of peacetrack volunteer db
 def summary(request):
-#    all_indicator = Indicator.objects.all()
     all_output = Output.objects.all()
     all_outcome = Outcome.objects.all()
     all_list = []
     for output in all_output:
 	temp= SummaryItem(output.output_ptpost.post_name, output.output_ptpost.post_region.region_name, output.output_sector.sector_code, output.output_ind.ind_obj.obj_goal.goal_project.project_name, output.output_ind.ind_obj.obj_goal.goal_name, output.output_ind.ind_obj.obj_name, output.output_ind.ind_desc, output.output_ind.ind_type_1, "Output", output.output_value)
-#	temp['post']=output.output_ptpost.post_name
-#	temp['region']=output.output_ptpost.post_region.region_name
-#	temp['sector']=output.output_sector.sector_code
-#	temp['project_name']=output.output_ind.ind_obj.obj_goal.goal_project.project_name
-#	temp['goal_name']=output.output_ind.ind_obj.obj_goal.goal_name
-#	temp['obj_name']=output.output_ind.ind_obj.obj_name
-#	temp['ind_desc']=output.output_ind.ind_desc
-#	temp['ind_type_1']=output.output_ind.ind_type_1
-#	temp['ind_type_2']="Output"
-#	temp['value']=output.output_value
 	all_list.append(temp)
     for outcome in all_outcome:
 	temp= SummaryItem(outcome.outcome_ptpost.post_name, outcome.outcome_ptpost.post_region.region_name, outcome.outcome_sector.sector_code, outcome.outcome_ind.ind_obj.obj_goal.goal_project.project_name, outcome.outcome_ind.ind_obj.obj_goal.goal_name, outcome.outcome_ind.ind_obj.obj_name, outcome.outcome_ind.ind_desc, outcome.outcome_ind.ind_type_1, "Outcome", outcome.outcome_value)
-#	temp={}
-#	temp['post']=outcome.outcome_ptpost.post_name
-#	temp['region']=outcome.outcome_ptpost.post_region.region_name
-#	temp['sector']=outcome.outcome_sector.sector_code
-#	temp['project_name']=outcome.outcome_ind.ind_obj.obj_goal.goal_project.project_name
-#	temp['goal_name']=outcome.outcome_ind.ind_obj.obj_goal.goal_name
-#	temp['obj_name']=outcome.outcome_ind.ind_obj.obj_name
-#	temp['ind_desc']=outcome.outcome_ind.ind_desc
-#	temp['ind_type_1']=outcome.outcome_ind.ind_type_1
-#	temp['ind_type_2']="Outcome"
-#	temp['value']=outcome.outcome_value
 	all_list.append(temp)
-    json=serializers.serialize(json,all_list)
-    return HttpResponse(json, content_type='application/json')
-#    return HttpResponse(jinja_environ.get_template('summary.html').render({"all_list":all_list,"pcuser":request.user.pcuser}))
+    results = [each.as_json() for each in all_list]
+    jsonDump = json.dumps(results)
+#    json=ser.serialize("json",all_list)
+#    return HttpResponse(jsonDump, content_type='application/json')
+    return HttpResponse(jinja_environ.get_template('summary.html').render({"all_list":results,"pcuser":request.user.pcuser}))
 
 def sectorEquate(sectors,sector2):
     temp = list(sectors)

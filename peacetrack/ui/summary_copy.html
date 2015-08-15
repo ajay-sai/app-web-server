@@ -1,0 +1,86 @@
+<!-- 
+Version : Phython/Django 2.7.6, PostgreSQL 9.3.4
+Author : Vaibhavi Desai
+Github username : desaivaibhavi
+email : ranihaileydesai@gmail.com
+-->
+
+<!-- the summary page -->
+
+
+<html>
+<head>
+	<title>PeaceTrack | Summary</title>
+	<!-- DataTables CSS -->
+	<link rel="stylesheet" type="text/css" href="DataTables-1.10.8/media/css/jquery.dataTables.css">
+	<!-- jQuery -->
+	<script type="text/javascript" charset="utf8" src="DataTables-1.10.8/media/js/jquery.js"></script>
+	<!-- DataTables -->
+	<script type="text/javascript" charset="utf8" src="DataTables-1.10.8/media/js/jquery.dataTables.js"></script>
+
+</head>
+<script type="text/javascript" language="javascript" class="init">
+$(document).ready(function() {
+         $('#summary').dataTable( {
+             "processing": true,
+             "ajax": {
+                 "processing": true,
+                 "url": "{% url 'summary' %}",
+                 "dataSrc": ""
+             },
+
+             "columns": [
+                     { "data": "fields.post" },
+                     { "data": "fields.region" },
+                     { "data": "fields.sector" },
+                     { "data": "fields.project" },
+                     { "data": "fields.goal" },
+                     { "data": "fields.objective" },
+                     { "data": "fields.indicator" },
+                     { "data": "fields.ind_type_1" },
+                     { "data": "fields.ind_type_2" },
+                     { "data": "fields.value" }
+                 ]
+         } );
+     } );
+
+</script>
+<body>
+    {% include "header.html" %}
+    <br><br><br><br><br><br>
+    <center><h2><font color="#2c0f00"> PeaceTrack : Summary</font> </h2></center>
+    <div style="width:1400px; height:auto; margin:0 auto; background-color:#0d8b97; padding-right:15px; padding-left:15px;">
+    <br><br>
+    <font color="white">
+    
+    <!--<b>Details by Post <br><br></b>-->
+    
+    <table cellpadding="0" cellspacing="0" border="0" id="summary">
+    	<thead>
+		<tr>
+			<th> Post </th>
+			<th> Region </th>
+			<th> Sector </th>
+			<th> Project </th>
+			<th> Goal </th>
+			<th> Objective </th>
+			<th> Indicator </th>
+			<th> Indicator Type</th>
+			<th> Indicator Type</th>
+			<th> Value</th>
+		</tr>
+    	</thead>
+	<tbody>
+	</tbody>
+    </table>
+    <br>    
+    <br>    
+        
+    </font>
+    </div>
+    <br><br>
+    {% include "footer.html" %}
+
+    
+</body>
+</html>

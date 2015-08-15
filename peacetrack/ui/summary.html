@@ -7,16 +7,48 @@ email : ranihaileydesai@gmail.com
 
 <!-- the summary page -->
 
-
 <html>
 <head>
 	<title>PeaceTrack | Summary</title>
-
-
+	<style>
+	{% include "DataTables-1.10.8/media/css/jquery.dataTables.css" %}
+	</style>
+	<style>
+	tfoot input {
+        width: 100%;
+        padding: 3px;
+        box-sizing: border-box;
+    }
+	</style>
+	<script>
+	{% include "DataTables-1.10.8/media/js/jquery.js" %}
+	</script>
+	<script>
+	{% include "DataTables-1.10.8/media/js/jquery.dataTables.js" %}
+	</script>
 </head>
 <script>
+
 	$(document).ready( function () {
-    	$('#summary').DataTable();
+
+	$('#summary tfoot th').each( function () {
+        var title = $('#summary tfoot th').eq( $(this).index() ).text();
+        $(this).html( '<input type="text" placeholder="'+title+'" />' );
+    	} );
+
+    	var table = $('#summary').DataTable();
+	
+	// Apply the search
+    	table.columns().every( function () {
+        var that = this;
+ 
+        $( 'input', this.footer() ).on( 'keyup change', function () {
+            that
+                .search( this.value )
+                .draw();
+        } );
+
+	    } );
 	} );
 </script>
 <body>
@@ -44,6 +76,20 @@ email : ranihaileydesai@gmail.com
 			<th> Value</th>
 		</tr>
     	</thead>
+	<tfoot>
+		<tr>
+			<th> Post </th>
+			<th> Region </th>
+			<th> Sector </th>
+			<th> Project </th>
+			<th> Goal </th>
+			<th> Objective </th>
+			<th> Indicator </th>
+			<th> Indicator Type</th>
+			<th> Indicator Type</th>
+			<th> Value</th>
+		</tr>
+    	</tfoot>
 	<tbody>
     	{%if all_list|length ==0 %}
         	<center><font color="white"><h4>There are No Posts right now.</h4></font><br><br><br><br><br><br><br><br><br><br></center>
@@ -54,10 +100,10 @@ email : ranihaileydesai@gmail.com
         		<th> {{ each['post'] }} </th>
         		<th> {{ each['region'] }} </th>
         		<th> {{ each['sector'] }} </th>
-        		<th> {{ each['project_name'] }} </th>
-        		<th> {{ each['goal_name'] }} </th>
-        		<th> {{ each['obj_name'] }} </th>
-        		<th> {{ each['ind_desc'] }} </th>
+        		<th> {{ each['project'] }} </th>
+        		<th> {{ each['goal'] }} </th>
+        		<th> {{ each['objective'] }} </th>
+        		<th> {{ each['indicator'] }} </th>
         		<th> {{ each['ind_type_1'] }} </th>
         		<th> {{ each['ind_type_2'] }} </th>
         		<th> {{ each['value'] }} </th>
@@ -69,7 +115,7 @@ email : ranihaileydesai@gmail.com
     </table>
     <br>    
     <br>    
-        
+
     </font>
     </div>
     <br><br>

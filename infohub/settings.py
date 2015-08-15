@@ -47,7 +47,6 @@ ROOT_URLCONF = 'infohub.urls'
 
 WSGI_APPLICATION = 'infohub.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/1.6/ref/settings/#databases
 
@@ -85,7 +84,7 @@ STATIC_ROOT = ''
 STATICFILES_DIRS = (
     '/vagrant/submit/media/propics/',
     '/vagrant/submit/app-web-server/ui/bootstrap/fonts',
-    'lol',
+    '/vagrant/peacetrack/ui/',
 )
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
