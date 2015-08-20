@@ -10,8 +10,6 @@ from peacetrack import views
 
 urlpatterns = patterns('',
     url(r'^$', views.peacetrack, name='peacetrack'),
-#    url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
-#    url(r'^api/', include(router.urls)),
     url(r'^volunteer/$', views.volunteer, name='volunteer'),
     url(r'^summary/$', views.summary, name='summary'),
 )

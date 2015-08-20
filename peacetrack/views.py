@@ -26,9 +26,10 @@ from rest_framework import permissions
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from rest_framework import generics
+import django_filters
 from paths import cpspath
 from webhub import xlrd
-
 import smtplib
 import json
 
@@ -140,11 +141,41 @@ def sector_detail(request, pk):
 #for ptposts
 class PTPostViewSet(viewsets.ModelViewSet):
     """
-    API endpoint that allows users to be viewed or edited.
+    API endpoint that allows posts to be viewed or edited.
     """
-    queryset = PTPost.objects.all()
     serializer_class = PTPostSerializer        
+    model = PTPost
 
+    def get_queryset(self):
+	try:
+	    post_sectors = self.request.QUERY_PARAMS['post_sectors']
+	except:
+	    post_sectors = None
+	if post_sectors is not None and post_sectors == "True":
+	    try:
+		pk = self.request.QUERY_PARAMS['id']
+	    except:
+		pk = None
+	    if pk is not None:
+        	ptpost = PTPost.objects.get(pk=pk)
+		self.serializer_class = SectorSerializer
+		self.model = Sector
+		queryset = ptpost.sector.all()
+	else:
+	    queryset = PTPost.objects.all()
+	    try:
+		vname = self.request.QUERY_PARAMS['vol_name']
+	    except:
+		vname = None
+	    try:
+		vemail = self.request.QUERY_PARAMS['vol_email']
+	    except:
+		vemail = None
+	    if vname is not None:
+        	queryset = queryset.filter(vol_name=vname)
+	    if vemail is not None:
+        	queryset = queryset.filter(vol_email=vemail)
+        return queryset
 #List all ptpost
 @api_view(['GET', 'POST'])
 def ptpost_list(request):
@@ -608,54 +639,81 @@ def cohort_detail(request, pk):
         cohort.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
     
-    
-    
+
 #for volunteers
 class VolunteerViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows users to be viewed or edited.
     """
-    queryset = Volunteer.objects.all()
-    serializer_class = VolunteerSerializer        
+#    queryset = Volunteer.objects.all()
+    serializer_class = VolunteerSerializer
+    model = Volunteer
 
-#List all volunteer
-@api_view(['GET', 'POST'])
-def volunteer_list(request):
-     if request.method == 'GET':
-        volunteer = Volunteer.objects.all()
-        serializer = VolunteerSerializer(volunteer, many=True)
-        return Response(serializer.data)
+    def get_queryset(self):
+	queryset = Volunteer.objects.all()
+	try:
+		vname = self.request.QUERY_PARAMS['vol_name']
+	except:
+		vname = None
+	try:
+		vemail = self.request.QUERY_PARAMS['vol_email']
+	except:
+		vemail = None
+	try:
+		vpost = self.request.QUERY_PARAMS['vol_ptpost']
+	except:
+		vpost = None
+	try:
+		vsector = self.request.QUERY_PARAMS['vol_sector']
+	except:
+		vsector = None
+	if vname is not None:
+            queryset = queryset.filter(vol_name=vname)
+	if vemail is not None:
+            queryset = queryset.filter(vol_email=vemail)
+	if vpost is not None:
+            queryset = queryset.filter(vol_ptpost=vpost)
+	if vsector is not None:
+            queryset = queryset.filter(vol_sector=vsector)
+        return queryset
 
-     elif request.method == 'POST':
-        serializer = VolunteerSerializer(data=request.DATA)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    #List all volunteer
+    @api_view(['GET', 'POST'])
+    def volunteer_list(request):
+	if request.method == 'GET':
+		volunteer = Volunteer.objects.all()
+        	serializer = VolunteerSerializer(volunteer, many=True)
+        	return Response(serializer.data)
+    	elif request.method == 'POST':
+        	serializer = VolunteerSerializer(data=request.DATA)
+        	if serializer.is_valid():
+            		serializer.save()
+        	    	return Response(serializer.data, status=status.HTTP_201_CREATED)
+       		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-#Retrieve, update or delete a volunteer instance.
-@api_view(['GET', 'PUT', 'DELETE'])
-def volunteer_detail(request, pk):
-    try:
-        volunteer = Volunteer.objects.get(pk=pk)
-    except Pcuser.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
+    #Retrieve, update or delete a volunteer instance.
+    @api_view(['GET', 'PUT', 'DELETE'])
+    def volunteer_detail(request, pk):
+    	try:
+        	volunteer = Volunteer.objects.get(pk=pk)
+    	except Pcuser.DoesNotExist:
+        	return Response(status=status.HTTP_404_NOT_FOUND)
 
-    if request.method == 'GET':
-        serializer = VolunteerSerializer(volunteer)
-        return Response(serializer.data)
+    	if request.method == 'GET':
+        	serializer = VolunteerSerializer(volunteer)
+        	return Response(serializer.data)
 
-    elif request.method == 'PUT':
-        serializer = VolunteerSerializer(volunteer, data=request.DATA)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    	elif request.method == 'PUT':
+        	serializer = VolunteerSerializer(volunteer, data=request.DATA)
+        	if serializer.is_valid():
+            		serializer.save()
+            		return Response(serializer.data)
+        	return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    elif request.method == 'DELETE':
-        volunteer.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-   
+    	elif request.method == 'DELETE':
+        	volunteer.delete()
+        	return Response(status=status.HTTP_204_NO_CONTENT)
+
  
 #called when user wishes to go to the Peacetrack from dashboard
 def peacetrack(request):
@@ -669,7 +727,7 @@ def volunteer(request):
     for vol in all_vol:
 	temp={}
 	temp['vol_name']=vol.vol_name
-	temp['vol_post']=vol.vol_ptpost
+	temp['vol_ptpost']=vol.vol_ptpost
 	temp['vol_sector']=vol.vol_sector
 	temp['cohort_activity_meas']=[]
 	for cohort in vol.vol_cohort.all():

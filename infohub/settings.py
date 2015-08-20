@@ -28,6 +28,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework_swagger',
+    'django_filters',
     'infohub',
     'malaria',
     'peacetrack',
@@ -94,7 +95,8 @@ STATICFILES_FINDERS = (
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': ('rest_framework.permissions.IsAdminUser',),
-    'PAGINATE_BY': 10
+    'PAGINATE_BY': 10,
+    'DEFAULT_FILTER_BACKENDS': ('rest_framework.filters.DjangoFilterBackend',)
 }
 # Parse database configuration from $DATABASE_URL
 # import dj_database_url
